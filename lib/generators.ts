@@ -151,10 +151,10 @@ export function genHTML(data: RepoData, cfg: EmbedConfig) {
   )}" target="_blank" rel="noopener noreferrer" class="er-card">
   <style>${styles.replace(/\s+/g, " ")}</style>
   ${
-    cfg.showFeaturedImage && data.og_image
-      ? `<img src="${esc(data.og_image)}" class="er-featured" alt="${esc(
-          data.name
-        )}" />`
+    cfg.showFeaturedImage && (cfg.customFeaturedImageUrl || data.og_image)
+      ? `<img src="${esc(
+          cfg.customFeaturedImageUrl || data.og_image!
+        )}" class="er-featured" alt="${esc(data.name)}" />`
       : ""
   }
   <div class="er-content">

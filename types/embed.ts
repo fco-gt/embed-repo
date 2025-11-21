@@ -9,6 +9,7 @@ export interface EmbedConfig {
   showLastUpdated: boolean;
   showContributors: boolean;
   showFeaturedImage: boolean;
+  customFeaturedImageUrl?: string; // User-uploaded custom featured image
 }
 
 export const defaultConfig: EmbedConfig = {
@@ -22,6 +23,7 @@ export const defaultConfig: EmbedConfig = {
   showLastUpdated: true,
   showContributors: true,
   showFeaturedImage: true,
+  customFeaturedImageUrl: undefined,
 };
 
 export interface WebhookResponse {

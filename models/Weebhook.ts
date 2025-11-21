@@ -25,6 +25,7 @@ const WeebhookSchema = new Schema<WeebhookDoc>({
     showLastUpdated: { type: Boolean, required: true },
     showContributors: { type: Boolean, required: true },
     showFeaturedImage: { type: Boolean, required: true },
+    customFeaturedImageUrl: { type: String, required: false },
   },
   createdAt: { type: Date, default: () => new Date() },
   lastAccessed: { type: Date, default: () => new Date() },

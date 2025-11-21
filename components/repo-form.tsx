@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, X } from "lucide-react";
 import { RepoData } from "@/types/repo";
 import { EmbedConfig, defaultConfig } from "@/types/embed";
 import { Input } from "@/components/ui/input";
@@ -26,16 +26,77 @@ export function RepoForm({ onData, onConfigChange }: RepoFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [config, setConfig] = useState<EmbedConfig>(defaultConfig);
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [useCustomImage, setUseCustomImage] = useState(false);
 
   // Notify parent of initial config
   useEffect(() => {
     onConfigChange(defaultConfig);
   }, [onConfigChange]);
 
-  const updateConfig = (key: keyof EmbedConfig, value: string | boolean) => {
+  const updateConfig = (key: keyof EmbedConfig, value: string | boolean | undefined) => {
     const newConfig = { ...config, [key]: value };
     setConfig(newConfig);
     onConfigChange(newConfig);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "image/gif"];
+    if (!validTypes.includes(file.type)) {
+      setImageError("Invalid format. Supported: JPG, PNG, WebP, GIF");
+      return;
+    }
+
+    // Validate file size (2MB)
+    const maxSize = 2 * 1024 * 1024;
+    if (file.size > maxSize) {
+      setImageError("Image too large. Maximum size: 2MB");
+      return;
+    }
+
+    setImageError(null);
+    setUploadingImage(true);
+
+    try {
+      // Convert to base64
+      const reader = new FileReader();
+      reader.onloadend = async () => {
+        const base64 = reader.result as string;
+        setPreviewImage(base64);
+
+        // Upload to Cloudinary
+        const response = await fetch("/api/upload-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageData: base64 }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Upload failed");
+        }
+
+        const result = await response.json();
+        updateConfig("customFeaturedImageUrl", result.url);
+        setUploadingImage(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (err) {
+      setImageError(err instanceof Error ? err.message : "Upload failed");
+      setUploadingImage(false);
+    }
+  };
+
+  const removeCustomImage = () => {
+    setPreviewImage(null);
+    updateConfig("customFeaturedImageUrl", undefined);
+    setUseCustomImage(false);
   };
 
   async function handleSubmit(e: React.FormEvent) {
@@ -129,6 +190,82 @@ export function RepoForm({ onData, onConfigChange }: RepoFormProps) {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Featured Image Upload */}
+        <div className="space-y-3">
+          <Label>Featured Image</Label>
+          <div className="flex gap-4">
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                name="imageSource"
+                checked={!useCustomImage}
+                onChange={() => {
+                  setUseCustomImage(false);
+                  removeCustomImage();
+                }}
+                className="h-4 w-4"
+              />
+              <span className="text-sm">Default (GitHub OG)</span>
+            </label>
+            <label className="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="radio"
+                name="imageSource"
+                checked={useCustomImage}
+                onChange={() => setUseCustomImage(true)}
+                className="h-4 w-4"
+              />
+              <span className="text-sm">Custom Upload</span>
+            </label>
+          </div>
+
+          {useCustomImage && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Input
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                  onChange={handleImageUpload}
+                  disabled={uploadingImage}
+                  className="text-sm"
+                />
+                {previewImage && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={removeCustomImage}
+                    className="h-8"
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                JPG, PNG, WebP, GIF • Max 2MB
+              </p>
+              {uploadingImage && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                  Uploading...
+                </div>
+              )}
+              {imageError && (
+                <p className="text-xs text-red-500">{imageError}</p>
+              )}
+              {previewImage && !uploadingImage && (
+                <div className="relative w-full h-40 rounded-lg overflow-hidden border">
+                  <img
+                    src={previewImage}
+                    alt="Custom featured preview"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
