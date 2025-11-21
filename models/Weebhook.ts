@@ -1,52 +1,37 @@
 import { Schema, model, models, Document } from "mongoose";
-
-export interface Contributor {
-  login: string;
-  avatar: string;
-}
-
-export interface WeebhookConfig {
-  theme?: string;
-  primaryColor?: string;
-  variant?: "compact" | "full";
-}
+import { EmbedConfig } from "@/types/embed";
 
 export interface WeebhookDoc extends Document {
   owner: string;
   repo: string;
-  name: string;
-  description?: string | null;
-  image?: string | null;
-  language?: string | null;
-  stars?: number;
-  forks?: number;
-  contributors: Contributor[];
-  config: WeebhookConfig;
+  repoUrl: string;
+  embedConfig: EmbedConfig;
   createdAt: Date;
+  lastAccessed: Date;
 }
-
-const ContributorSchema = new Schema<Contributor>({
-  login: { type: String, required: true },
-  avatar: { type: String, required: true },
-});
 
 const WeebhookSchema = new Schema<WeebhookDoc>({
   owner: { type: String, required: true },
   repo: { type: String, required: true },
-  name: { type: String, required: true },
-  description: { type: String, default: null },
-  image: { type: String, default: null },
-  language: { type: String, default: null },
-  stars: { type: Number, default: 0 },
-  forks: { type: Number, default: 0 },
-  contributors: { type: [ContributorSchema], default: [] },
-  config: {
-    theme: { type: String, default: "light" },
-    primaryColor: { type: String, default: "" },
-    variant: { type: String, enum: ["compact", "full"], default: "full" },
+  repoUrl: { type: String, required: true },
+  embedConfig: {
+    theme: { type: String, required: true },
+    showStars: { type: Boolean, required: true },
+    showForks: { type: Boolean, required: true },
+    showLanguage: { type: Boolean, required: true },
+    showAvatar: { type: Boolean, required: true },
+    primaryColor: { type: String, required: true },
+    showIssues: { type: Boolean, required: true },
+    showLastUpdated: { type: Boolean, required: true },
+    showContributors: { type: Boolean, required: true },
+    showFeaturedImage: { type: Boolean, required: true },
   },
   createdAt: { type: Date, default: () => new Date() },
+  lastAccessed: { type: Date, default: () => new Date() },
 });
+
+// Index for faster lookups by owner/repo
+WeebhookSchema.index({ owner: 1, repo: 1 });
 
 export default models.Weebhook ||
   model<WeebhookDoc>("Weebhook", WeebhookSchema);

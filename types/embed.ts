@@ -23,3 +23,13 @@ export const defaultConfig: EmbedConfig = {
   showContributors: true,
   showFeaturedImage: true,
 };
+
+export interface WebhookResponse {
+  id: string;
+  webhookUrl: string;
+}
+
+export interface CreateWebhookRequest {
+  repoUrl: string;
+  embedConfig: EmbedConfig;
+}
