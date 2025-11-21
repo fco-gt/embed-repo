@@ -13,11 +13,16 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "url required" }, { status: 400 });
   }
 
-  // Validate URL
-  const match = repoUrl.match(/^https?:\/\/(?:www\.)?github\.com\/([^\/]+)\/([^\/]+)/);
+  // Validate URL (HTTPS only)
+  const match = repoUrl.match(
+    /^https:\/\/(?:www\.)?github\.com\/([^\/]+)\/([^\/]+)/
+  );
 
   if (!match) {
-    return NextResponse.json({ error: "invalid url" }, { status: 400 });
+    return NextResponse.json(
+      { error: "invalid url, must use HTTPS" },
+      { status: 400 }
+    );
   }
 
   const owner = match[1];
@@ -33,14 +38,13 @@ export async function GET(req: NextRequest) {
 
   try {
     const repoData = await fetchRepo(owner, repo);
-    
-    const sanitizedReadme =
-      repoData.readme
-        ? sanitizeHtml(repoData.readme, {
-            allowedTags: [],
-            allowedAttributes: {},
-          }).slice(0, 2000)
-        : null;
+
+    const sanitizedReadme = repoData.readme
+      ? sanitizeHtml(repoData.readme, {
+          allowedTags: [],
+          allowedAttributes: {},
+        }).slice(0, 2000)
+      : null;
 
     const cleanData: RepoData = {
       ...repoData,
