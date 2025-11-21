@@ -11,6 +11,13 @@ export interface RepoData {
   language?: string | null;
   homepage?: string | null;
   html_url: string;
+  open_issues: number;
+  pushed_at: string;
+  contributors: Array<{
+    username: string;
+    avatar: string;
+  }>;
+  og_image?: string;
 }
 
 export interface CacheEntry {

@@ -131,7 +131,7 @@ export function RepoForm({ onData, onConfigChange }: RepoFormProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
           <div className="flex items-center space-x-2">
             <Switch
               id="showStars"
@@ -163,6 +163,38 @@ export function RepoForm({ onData, onConfigChange }: RepoFormProps) {
               onCheckedChange={(c) => updateConfig("showAvatar", c)}
             />
             <Label htmlFor="showAvatar">Avatar</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="showIssues"
+              checked={config.showIssues}
+              onCheckedChange={(c) => updateConfig("showIssues", c)}
+            />
+            <Label htmlFor="showIssues">Issues</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="showLastUpdated"
+              checked={config.showLastUpdated}
+              onCheckedChange={(c) => updateConfig("showLastUpdated", c)}
+            />
+            <Label htmlFor="showLastUpdated">Updated</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="showContributors"
+              checked={config.showContributors}
+              onCheckedChange={(c) => updateConfig("showContributors", c)}
+            />
+            <Label htmlFor="showContributors">Contributors</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="showFeaturedImage"
+              checked={config.showFeaturedImage}
+              onCheckedChange={(c) => updateConfig("showFeaturedImage", c)}
+            />
+            <Label htmlFor="showFeaturedImage">Featured Img</Label>
           </div>
         </div>
       </div>

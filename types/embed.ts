@@ -5,6 +5,10 @@ export interface EmbedConfig {
   showLanguage: boolean;
   showAvatar: boolean;
   primaryColor: string;
+  showIssues: boolean;
+  showLastUpdated: boolean;
+  showContributors: boolean;
+  showFeaturedImage: boolean;
 }
 
 export const defaultConfig: EmbedConfig = {
@@ -14,4 +18,8 @@ export const defaultConfig: EmbedConfig = {
   showLanguage: true,
   showAvatar: true,
   primaryColor: "#3b82f6", // blue-500
+  showIssues: true,
+  showLastUpdated: true,
+  showContributors: true,
+  showFeaturedImage: true,
 };
