@@ -19,9 +19,8 @@ export async function fetchRepo(owner: string, repo: string) {
   return {
     name: r.data.name,
     owner: {
-      login: r.data.owner.login,
+      username: r.data.owner.login,
       avatar: r.data.owner.avatar_url,
-      url: r.data.owner.html_url,
     },
     description: r.data.description,
     stars: r.data.stargazers_count,
